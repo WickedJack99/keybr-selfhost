@@ -1,13 +1,32 @@
-FROM node:24-bookworm-slim
+FROM node:24-bookworm-slim AS build
+
+# Lage uses Git to fingerprint workspace files while compiling. Coolify's
+# Docker context intentionally excludes the source repository's .git folder,
+# so provide a temporary build-only snapshot instead of depending on it.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN HUSKY=0 npm ci
+RUN git init --quiet \
+    && git config user.email "docker-build@localhost" \
+    && git config user.name "Docker build" \
+    && git add --all \
+    && git commit --quiet --message "Docker build snapshot" \
+    && HUSKY=0 npm ci \
+    && npm run compile \
+    && npm run build \
+    && rm -rf .git
 
-RUN npm run compile && npm run build
+FROM node:24-bookworm-slim
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app ./
 
 ENV NODE_ENV=production \
     DATA_DIR=/data \

@@ -42,6 +42,11 @@ Create an application from this repository and select the Dockerfile build pack:
 
 5. Deploy the application. It creates the SQLite schema on startup. Open the Coolify terminal and run `npm run user:create -- --username jack`; enter the password twice, then visit the configured `APP_URL` and sign in.
 
+The Docker build does not require the repository's `.git` directory. The
+build stage creates a temporary Git snapshot only because the upstream Lage
+compiler uses Git for file fingerprinting; that snapshot and the Git package
+are excluded from the final runtime image.
+
 The container healthcheck requests `http://127.0.0.1:3000/healthz`. A healthy response confirms that the HTTP server and database are available. Keep the `/data` volume when redeploying so the account, session, and typing history survive image updates. Run the same `user:create` command with the existing username to change its password; it updates the existing local account rather than creating a duplicate.
 
 The upstream multiplayer worker remains in the source tree for maintainability, but private mode blocks its routes and it is not required for the personal application. Only expose port `3000`.

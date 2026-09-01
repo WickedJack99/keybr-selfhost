@@ -12,4 +12,5 @@ packages/*/.types
 build
 out
 tmp
+.tmp-*
 *.log
