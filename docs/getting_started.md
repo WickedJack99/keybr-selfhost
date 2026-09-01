@@ -75,4 +75,5 @@ npm run watch
 ### Docker
 There is also an ability to deploy app with Docker or Docker Compose, `Dockerfile` and `docker-compose.yaml` are provided.
 
-There are some limitations: exposed port should always be 3000
+For a personal deployment with SQLite and a local password account, see [Self-hosting](./self_hosting.md). The HTTP
+application port is 3000; the optional multiplayer worker uses port 3001.

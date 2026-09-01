@@ -42,6 +42,15 @@ const PPatchAccount = zod(TPatchAccount, () => {
   throw new ApplicationError("Invalid request");
 });
 
+const TLocalLogin = z.object({
+  username: z.string().min(1),
+  password: z.string().min(1),
+});
+type TLocalLogin = z.infer<typeof TLocalLogin>;
+const PLocalLogin = zod(TLocalLogin, () => {
+  throw new ApplicationError("Invalid credentials");
+});
+
 @injectable()
 @controller()
 export class Controller {
@@ -122,6 +131,21 @@ export class Controller {
           "You likely got here because you used an old link that does not work anymore.",
       });
     }
+  }
+
+  @http.POST({ name: "local-login", path: "/auth/local-login" })
+  async localLogin(
+    ctx: Context<RouterState & SessionState & AuthState>,
+    @body.json(PLocalLogin, jsonOpts) { username, password }: TLocalLogin,
+  ) {
+    const user = await User.loginWithPassword(username, password);
+    if (user == null) {
+      throw new ForbiddenError("Invalid credentials");
+    }
+    ctx.state.session.destroy();
+    ctx.state.session.start();
+    ctx.state.session.set("userId", user.id!);
+    ctx.response.status = 204;
   }
 
   @http.GET({ name: "logout", path: "/auth/logout" })

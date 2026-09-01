@@ -38,6 +38,7 @@ const assetModuleFilename = dev ? "[name]" : "[contenthash:16]";
 const localIdentName = dev
   ? "[name]__[local]__[hash:base64:10]"
   : "[hash:base64:10]";
+const assetFilePattern = /\.(?:data|stats|jpe?g|mp3|png|svg|woff2)$/i;
 
 const rule_ts = () => ({
   test: /\.(ts|tsx)$/,
@@ -121,12 +122,12 @@ export default [
         rule_js(),
         rule_less(false),
         {
-          test: /\/assets\//,
+          test: assetFilePattern,
           use: "null-loader",
         },
         {
-          test: /\/knex\/lib\/dialects\//,
-          exclude: /\/mysql|sqlite3|better-sqlite3\//,
+          test: /[\\/]knex[\\/]lib[\\/]dialects[\\/]/,
+          exclude: /[\\/]mysql[\\/]|[\\/]sqlite3[\\/]|[\\/]better-sqlite3[\\/]/,
           use: "null-loader",
         },
         {
@@ -163,7 +164,6 @@ export default [
     entry: {
       browser: "./packages/keybr-pages-browser/lib/entry.ts",
       server: "./packages/keybr-pages-server/lib/entry.ts",
-      ads: "./packages/thirdparties-ads/lib/entry.ts",
     },
     output: {
       path: join(import.meta.dirname, "root", "public", "assets"),
@@ -179,7 +179,7 @@ export default [
         rule_js(),
         rule_less(true),
         {
-          test: /\/assets\//,
+          test: assetFilePattern,
           type: "asset/resource",
         },
       ],

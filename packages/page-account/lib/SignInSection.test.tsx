@@ -12,19 +12,10 @@ test("render", () => {
     </FakeIntlProvider>,
   );
 
+  isNotNull(r.queryByText("Sign-in locally", { exact: false }));
   isNotNull(
-    r.queryByText("Simple sign-in that does not use passwords.", {
-      exact: false,
-    }),
+    r.queryByText("password-protected local account", { exact: false }),
   );
-  isNotNull(
-    r.queryByText("Sign-in with your preferred social network.", {
-      exact: false,
-    }),
-  );
-  isNotNull(r.queryByText("Google", { exact: false }));
-  isNotNull(r.queryByText("Microsoft", { exact: false }));
-  isNotNull(r.queryByText("Facebook", { exact: false }));
 
   r.unmount();
 });

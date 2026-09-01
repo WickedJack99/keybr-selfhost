@@ -11,7 +11,7 @@ import { conditional } from "@fastr/middleware-conditional";
 import { SessionHandler } from "@fastr/middleware-session";
 import { staticFiles } from "@fastr/middleware-static-files";
 import { ManifestModule } from "./assets.ts";
-import { AuthModule, loadUser } from "./auth/index.ts";
+import { AuthModule, loadUser, privateAccess } from "./auth/index.ts";
 import { cacheControl } from "./cachecontrol.ts";
 import { ErrorHandler } from "./error/index.ts";
 import { MailModule } from "./mail/index.ts";
@@ -33,6 +33,7 @@ export class ApplicationModule implements Module {
   provideMain(
     container: Container,
     @inject("publicDir") publicDir: string,
+    @inject("privateMode") privateMode: boolean,
   ): Application {
     return new Application(container, { behindProxy: true })
       .use(ErrorHandler)
@@ -41,15 +42,20 @@ export class ApplicationModule implements Module {
       .use(staticFiles(publicDir, { cacheControl }))
       .use(SessionHandler)
       .use(loadUser())
+      .use(privateAccess(privateMode))
       .use(mainRoutes());
   }
 
   @provides({ id: Application, name: kGame, singleton: true })
-  provideGame(container: Container): Application {
+  provideGame(
+    container: Container,
+    @inject("privateMode") privateMode: boolean,
+  ): Application {
     return new Application(container, { behindProxy: true })
       .use(ErrorHandler)
       .use(SessionHandler)
       .use(loadUser())
+      .use(privateAccess(privateMode))
       .use(gameRoutes());
   }
 }

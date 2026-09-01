@@ -1,4 +1,4 @@
-import { type NamedUser, Screen, usePageData } from "@keybr/pages-shared";
+import { Screen } from "@keybr/pages-shared";
 import {
   DailyStatsMap,
   type KeyStatsMap,
@@ -17,7 +17,6 @@ import { KeySpeedChartSection } from "./profile/KeySpeedChartSection.tsx";
 import { KeySpeedHistogramSection } from "./profile/KeySpeedHistogramSection.tsx";
 import { ProgressOverviewSection } from "./profile/ProgressOverviewSection.tsx";
 import { ResultGrouper } from "./profile/ResultGrouper.tsx";
-import { ShareProfileLink } from "./profile/ShareProfileLink.tsx";
 import { SpeedChartSection } from "./profile/SpeedChartSection.tsx";
 import { AllTimeSummary, TodaySummary } from "./profile/Summary.tsx";
 
@@ -35,7 +34,6 @@ export function ProfilePage() {
 }
 
 function Content({ keyStatsMap }: { keyStatsMap: KeyStatsMap }) {
-  const { publicUser } = usePageData();
   const { results } = keyStatsMap;
   const stats = makeSummaryStats(results);
   const dailyStatsMap = new DailyStatsMap(results);
@@ -65,10 +63,6 @@ function Content({ keyStatsMap }: { keyStatsMap: KeyStatsMap }) {
       <KeyFrequencyHeatmapSection keyStatsMap={keyStatsMap} />
 
       <CalendarSection dailyStatsMap={dailyStatsMap} />
-
-      {publicUser.id != null && (
-        <ShareProfileLink user={publicUser as NamedUser} />
-      )}
 
       <FooterSection />
     </>

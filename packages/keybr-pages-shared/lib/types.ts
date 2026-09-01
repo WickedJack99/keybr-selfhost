@@ -32,6 +32,10 @@ export type PageData = {
    * Serialized user settings.
    */
   readonly settings: unknown | null;
+  /**
+   * URL where the corresponding modified source can be obtained.
+   */
+  readonly sourceCodeUrl?: string;
 };
 
 export type UserDetails = {

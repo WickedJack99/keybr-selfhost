@@ -1,10 +1,18 @@
 services:
   keybr:
     build:
+      context: .
       dockerfile: ./Dockerfile
     volumes:
-      - /path/to/data_dir:~/.local/state/keybr
-      - /path/to/data_dir/.env:/etc/keybr/env
+      - keybr-data:/data
     ports:
-      - 30044:3000
+      - "${KEYBR_PORT:-3000}:3000"
+    environment:
+      APP_URL: "${APP_URL:-http://localhost:3000/}"
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+      PRIVATE_MODE: "true"
+      SOURCE_CODE_URL: "${SOURCE_CODE_URL:-https://github.com/aradzie/keybr.com}"
     restart: unless-stopped
+
+volumes:
+  keybr-data:

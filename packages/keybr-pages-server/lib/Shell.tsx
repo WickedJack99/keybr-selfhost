@@ -2,7 +2,6 @@ import { type IncomingHeaders } from "@fastr/headers";
 import { FavIconAssets, ScriptAssets, StylesheetAssets } from "@keybr/assets";
 import { getDir } from "@keybr/intl";
 import {
-  isPremiumUser,
   LoadingProgress,
   PageDataScript,
   type PageInfo,
@@ -11,15 +10,10 @@ import {
   usePageData,
 } from "@keybr/pages-shared";
 import { ThemePrefs, useTheme } from "@keybr/themes";
-import {
-  CloudflareAnalytics,
-  GoogleTagManager,
-  SetupAds,
-} from "@keybr/thirdparties";
 import { type ReactNode } from "react";
 import { useIntl } from "react-intl";
 import { isBot } from "./bot.ts";
-import { AltLangLinks, favIcons, Metas } from "./meta.tsx";
+import { favIcons, Metas } from "./meta.tsx";
 
 export function Shell({
   page,
@@ -28,22 +22,20 @@ export function Shell({
   readonly page: PageInfo;
   readonly headers: IncomingHeaders;
 }) {
-  const { publicUser } = usePageData();
+  const { user } = usePageData();
   return (
     <Html>
-      <Head page={page}>
-        {isPremiumUser(publicUser) || (
-          <>
-            <CloudflareAnalytics />
-            <GoogleTagManager />
-            <SetupAds>
-              <ScriptAssets entrypoint="ads" />
-            </SetupAds>
-          </>
-        )}
-      </Head>
+      <Head page={page} />
       <Body>
-        {isBot(headers) ? <Content page={page} /> : <LoadingProgress />}
+        {isBot(headers) ? (
+          user == null ? (
+            <LoginContent />
+          ) : (
+            <Content page={page} />
+          )
+        ) : (
+          <LoadingProgress />
+        )}
       </Body>
     </Html>
   );
@@ -78,7 +70,6 @@ function Head({
       <title>{formatMessage(page.title)}</title>
       <StylesheetAssets entrypoint="browser" />
       <FavIconAssets links={favIcons} />
-      <AltLangLinks page={page} />
       <Metas page={page} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <PageDataScript />
@@ -108,7 +99,6 @@ function Content({ page }: { readonly page: PageInfo }) {
             Pages.practice,
             Pages.profile,
             Pages.typingTest,
-            Pages.multiplayer,
             Pages.layouts,
             Pages.help,
           ].map(({ path, link }, index) => (
@@ -123,6 +113,20 @@ function Content({ page }: { readonly page: PageInfo }) {
           ))}
         </ul>
       </nav>
+    </>
+  );
+}
+
+function LoginContent() {
+  const { sourceCodeUrl } = usePageData();
+  return (
+    <>
+      <h1>Typing</h1>
+      <p>Private typing practice powered by Keybr.</p>
+      <p>
+        Based on Keybr · AGPL-3.0 ·{" "}
+        {sourceCodeUrl != null && <a href={sourceCodeUrl}>Source Code</a>}
+      </p>
     </>
   );
 }

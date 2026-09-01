@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://www.keybr.com",
-  "license": "GPL-3",
+  "license": "AGPL-3.0-only",
   "author": "Aliaksandr Radzivanovich <aradzivanovich@gmail.com>",
   "repository": {
     "type": "git",
@@ -26,11 +26,12 @@
     "stylelint": "stylelint '{**/*,*}.{less,css}'",
     "stylelint-fix": "stylelint '{**/*,*}.{less,css}' --fix",
     "format": "prettier '{**/*,*}.{js,ts,tsx,less,css}' --write",
-    "build": "env NODE_ENV=production webpack",
+    "build": "webpack",
     "build-dev": "env NODE_ENV=development webpack",
     "watch": "env NODE_ENV=development webpack --watch",
     "start": "env NODE_ENV=development node --enable-source-maps ./root/index.js",
-    "start-docker": "env NODE_ENV=production ./packages/devenv/lib/initdb.ts && env NODE_ENV=production node --enable-source-maps ./root/index.js"
+    "user:create": "node --enable-source-maps ./root/lib/keybr.js user-create",
+    "start-docker": "env NODE_ENV=production node --import @keybr/tsl ./packages/devenv/lib/initdb.ts && env NODE_ENV=production node --enable-source-maps ./root/index.js"
   },
   "dependencies": {
     "@fastr/client": "^0.1.3",

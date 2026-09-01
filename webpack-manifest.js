@@ -1,4 +1,4 @@
-import { basename, extname, join } from "node:path";
+import { basename, extname, posix } from "node:path";
 import webpack from "webpack";
 
 const {
@@ -75,7 +75,7 @@ function computeEntrypoints({ entrypoints }, { publicPath, namedChunkGroups }) {
     const files = entrypoint.getFiles();
     result[name] = {
       assets: groupBy(
-        files.map((file) => join(publicPath, file)),
+        files.map((file) => posix.join(publicPath, file)),
         extKey,
       ),
     };
@@ -83,7 +83,7 @@ function computeEntrypoints({ entrypoints }, { publicPath, namedChunkGroups }) {
     const { childAssets } = namedChunkGroups[name];
     for (const [property, assets] of Object.entries(childAssets)) {
       result[name][property] = groupBy(
-        assets.map((file) => join(publicPath, file)),
+        assets.map((file) => posix.join(publicPath, file)),
         extKey,
       );
     }
@@ -98,8 +98,8 @@ function computeAssets({ publicPath, assets, assetsByChunkName }) {
   for (const [name, files] of Object.entries(assetsByChunkName)) {
     for (const file of files) {
       result.push({
-        name: join(publicPath, name + extname(file)),
-        file: join(publicPath, file),
+        name: posix.join(publicPath, name + extname(file)),
+        file: posix.join(publicPath, file),
       });
     }
   }
@@ -107,8 +107,8 @@ function computeAssets({ publicPath, assets, assetsByChunkName }) {
   for (const { name, info: { sourceFilename: file = null } = null } of assets) {
     if (file != null) {
       result.push({
-        name: join(publicPath, basename(file)),
-        file: join(publicPath, name),
+        name: posix.join(publicPath, basename(file)),
+        file: posix.join(publicPath, name),
       });
     }
   }

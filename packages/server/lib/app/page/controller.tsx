@@ -23,6 +23,7 @@ import { localePattern, pIntl, preferredLocale } from "./intl.ts";
 export class Controller {
   constructor(
     @inject("canonicalUrl") readonly canonicalUrl: string,
+    @inject("sourceCodeUrl") readonly sourceCodeUrl: string,
     readonly view: View,
     readonly database: SettingsDatabase,
   ) {}
@@ -38,6 +39,11 @@ export class Controller {
     @pathParam("locale", pIntl) intl: IntlShape,
   ) {
     return this.renderPage(ctx, Pages.practice, intl);
+  }
+
+  @http.GET(Pages.login.path)
+  async ["login"](ctx: Context<RouterState & AuthState>) {
+    return this.renderPage(ctx, Pages.login);
   }
 
   @http.GET("/index")
@@ -195,6 +201,7 @@ export class Controller {
       user: user?.toDetails() ?? null,
       publicUser,
       settings: settings?.toJSON() ?? null,
+      sourceCodeUrl: this.sourceCodeUrl,
     };
   }
 

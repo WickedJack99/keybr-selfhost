@@ -27,8 +27,8 @@ test("render sign-in fragment", () => {
     </PageDataContext.Provider>,
   );
 
-  isNotNull(r.queryByText("Anonymous User", { exact: false }));
-  isNull(r.queryByText("You are using an account", { exact: false }));
+  isNotNull(r.queryByText("Private typing practice", { exact: false }));
+  isNull(r.queryByText("persistent storage", { exact: false }));
 
   r.unmount();
 });
@@ -73,7 +73,9 @@ test("render account fragment", () => {
   );
 
   isNull(r.queryByText("Anonymous User", { exact: false }));
-  isNotNull(r.queryByText("You are using an account", { exact: false }));
+  isNotNull(
+    r.queryByText("private instance stores your typing data", { exact: false }),
+  );
 
   r.unmount();
 });

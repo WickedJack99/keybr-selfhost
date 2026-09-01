@@ -10,8 +10,8 @@ export class MailgunConfig {
   readonly from: string;
 
   constructor() {
-    this.domain = Env.getString("MAIL_DOMAIN");
-    this.key = Env.getString("MAIL_KEY");
+    this.domain = Env.getString("MAIL_DOMAIN", "");
+    this.key = Env.getString("MAIL_KEY", "");
     const fromAddress = Env.getString("MAIL_FROM_ADDRESS", "k@keybr.com");
     const fromName = Env.getString("MAIL_FROM_NAME", "keybr.com");
     this.from = `${fromName} <${fromAddress}>`;
@@ -31,6 +31,11 @@ export class MailgunMailer extends Mailer {
     text,
     html,
   }: Mailer.Message): Promise<void> {
+    if (this.config.domain === "" || this.config.key === "") {
+      throw new Error(
+        "E-mail login is not configured; use the local self-hosted account instead",
+      );
+    }
     const body = new URLSearchParams([
       ["from", from],
       ["to", to],

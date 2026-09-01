@@ -24,7 +24,10 @@ function connect() {
       return connectMySql({ host, port, database, user, password });
     }
     case "sqlite": {
-      let filename = Env.getString("DATABASE_FILENAME", ":memory:");
+      let filename = Env.getString(
+        "DATABASE_FILENAME",
+        "/data/database.sqlite",
+      );
       if (filename !== ":memory:") {
         filename = Env.asPath(filename);
         mkdirSync(dirname(filename), { recursive: true });

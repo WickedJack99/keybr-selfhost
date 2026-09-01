@@ -18,6 +18,11 @@ export async function createSchema(knex: Knex): Promise<void> {
   };
 
   await createTable(User);
+  if (!(await knex.schema.hasColumn(User.tableName, "password_hash"))) {
+    await knex.schema.alterTable(User.tableName, (table) => {
+      table.string("password_hash", 255).nullable();
+    });
+  }
   await createTable(UserExternalId);
   await createTable(Order);
   await createTable(UserLoginRequest);

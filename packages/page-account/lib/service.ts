@@ -19,6 +19,16 @@ export namespace AccountService {
     return await response.json();
   }
 
+  export async function loginLocal(
+    username: string,
+    password: string,
+  ): Promise<void> {
+    const response = await request
+      .POST("/auth/local-login")
+      .send({ username, password });
+    await response.blob();
+  }
+
   export async function patchAccount(
     data: PatchAccountRequest,
   ): Promise<PatchAccountResponse> {

@@ -11,7 +11,6 @@ import { type ReactNode } from "react";
 import { useIntl } from "react-intl";
 import { NavLink } from "react-router";
 import * as styles from "./NavMenu.module.less";
-import { SubMenu } from "./SubMenu.tsx";
 import { ThemeSwitcher } from "./themes/ThemeSwitcher.tsx";
 
 export function NavMenu({ currentPath }: { readonly currentPath: string }) {
@@ -39,14 +38,6 @@ export function NavMenu({ currentPath }: { readonly currentPath: string }) {
       </MenuItem>
 
       <MenuItem>
-        <MenuItemLink page={Pages.highScores} />
-      </MenuItem>
-
-      <MenuItem>
-        <MenuItemLink page={Pages.multiplayer} />
-      </MenuItem>
-
-      <MenuItem>
         <MenuItemLink page={Pages.typingTest} />
       </MenuItem>
 
@@ -55,7 +46,9 @@ export function NavMenu({ currentPath }: { readonly currentPath: string }) {
       </MenuItem>
 
       <MenuItem>
-        <SubMenu currentPath={currentPath} />
+        <NavLink className={styles.link} to="/auth/logout">
+          <span className={styles.label}>Logout</span>
+        </NavLink>
       </MenuItem>
     </div>
   );

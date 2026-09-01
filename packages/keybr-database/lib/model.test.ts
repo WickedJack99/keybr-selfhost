@@ -154,6 +154,34 @@ test("generate unique user name", async (ctx) => {
   );
 });
 
+test("provision local user idempotently", async () => {
+  const first = await User.ensureLocal({
+    username: "LocalUser",
+    password: "first-password",
+  });
+
+  equal(first.email, "localuser@local.invalid");
+  equal(first.name, "localuser");
+  isNotNull(first.passwordHash);
+  equal(
+    (await User.loginWithPassword("LOCALUSER", "first-password"))?.id,
+    first.id,
+  );
+  isNull(await User.loginWithPassword("localuser", "wrong-password"));
+
+  const second = await User.ensureLocal({
+    username: "localuser",
+    password: "second-password",
+  });
+
+  equal(second.id, first.id);
+  isNull(await User.loginWithPassword("localuser", "first-password"));
+  equal(
+    (await User.loginWithPassword("localuser", "second-password"))?.id,
+    first.id,
+  );
+});
+
 test("create user from resource owner with null values", async (ctx) => {
   ctx.mock.timers.enable({ apis: ["Date"], now });
 

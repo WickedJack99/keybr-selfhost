@@ -10,7 +10,9 @@ import {
 import { PublicId } from "@keybr/publicid";
 import { type Knex } from "knex";
 import { type JSONSchema, Model, type Pojo, snakeCaseMappers } from "objection";
+import { localUserEmail, normalizeLocalUsername } from "./local.ts";
 import { anonymousName } from "./name.ts";
+import { hashPassword, verifyPassword } from "./password.ts";
 import { Random } from "./util.ts";
 
 export function TimestampMixin(superClass: typeof Model): typeof Model {
@@ -35,6 +37,7 @@ export class User extends TimestampMixin(Model) {
       id: { type: "integer" },
       email: { type: "string", minLength: 1, maxLength: 64 },
       name: { type: "string", minLength: 1, maxLength: 32 },
+      passwordHash: { type: ["null", "string"], maxLength: 255 },
     },
   } satisfies JSONSchema;
 
@@ -43,6 +46,7 @@ export class User extends TimestampMixin(Model) {
     table.increments("id").primary();
     table.string("email", email.maxLength).notNullable();
     table.string("name", name.maxLength).notNullable();
+    table.string("password_hash", 255).nullable();
     table.boolean("anonymized").notNullable().defaultTo(false);
     table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     table.unique(["email"]);
@@ -52,10 +56,19 @@ export class User extends TimestampMixin(Model) {
   readonly id?: number;
   email?: string;
   name?: string;
+  passwordHash?: string | null;
   anonymized?: number;
   createdAt?: Date;
   externalIds?: UserExternalId[];
   order?: Order;
+
+  override $parseDatabaseJson(json: Pojo): Pojo {
+    json = super.$parseDatabaseJson(json);
+    if (json.passwordHash == null) {
+      delete json.passwordHash;
+    }
+    return json;
+  }
 
   static async loadProfileOwner(publicId: PublicId): Promise<NamedUser | null> {
     if (publicId.example) {
@@ -86,6 +99,15 @@ export class User extends TimestampMixin(Model) {
     );
   }
 
+  static async findByName(name: string): Promise<User | null> {
+    return (
+      (await User.query() //
+        .withGraphFetched("externalIds")
+        .withGraphFetched("order")
+        .findOne({ name })) ?? null
+    );
+  }
+
   static async loadAll(id: number[]): Promise<Map<number, User>> {
     return new Map<number, User>(
       (
@@ -107,6 +129,58 @@ export class User extends TimestampMixin(Model) {
         .insertAndFetch({ email, name });
     }
     return user;
+  }
+
+  static async loginWithPassword(
+    username: string,
+    password: string,
+  ): Promise<User | null> {
+    const normalized = normalizeLocalUsername(username);
+    const user =
+      normalized == null
+        ? null
+        : await User.findByEmail(localUserEmail(normalized));
+    if (
+      user?.passwordHash != null &&
+      (await verifyPassword(password, user.passwordHash))
+    ) {
+      return user;
+    }
+    return null;
+  }
+
+  static async ensureLocal({
+    username,
+    password,
+  }: {
+    readonly username: string;
+    readonly password: string;
+  }): Promise<User> {
+    const normalized = normalizeLocalUsername(username);
+    if (normalized == null) {
+      throw new TypeError("Invalid local username");
+    }
+    const email = localUserEmail(normalized);
+    let user = await User.findByEmail(email);
+    if (user == null) {
+      const nameTaken = await User.findByName(normalized);
+      if (nameTaken != null) {
+        throw new Error(`Username '${normalized}' is already in use`);
+      }
+      user = await User.query().insertAndFetch({
+        email,
+        name: normalized,
+        passwordHash: await hashPassword(password),
+      });
+    } else if (
+      user.passwordHash == null ||
+      !(await verifyPassword(password, user.passwordHash))
+    ) {
+      await user.$query().patch({
+        passwordHash: await hashPassword(password),
+      });
+    }
+    return (await User.findByEmail(email))!;
   }
 
   static async findUniqueName(

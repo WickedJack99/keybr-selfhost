@@ -16,6 +16,7 @@ initErrorHandlers();
 if (cluster.isPrimary) {
   Env.probeFilesSync();
   const container = makeContainer();
+  const privateMode = container.get("privateMode");
   Logger.info("Configuration", {
     dataDir: container.get("dataDir"),
     publicDir: container.get("publicDir"),
@@ -26,7 +27,9 @@ if (cluster.isPrimary) {
   fork({ args: ["http"] });
   fork({ args: ["http"] });
   fork({ args: ["http"] });
-  fork({ args: ["ws"] });
+  if (!privateMode) {
+    fork({ args: ["ws"] });
+  }
 } else {
   const container = makeContainer();
   const service = container.get(Service);

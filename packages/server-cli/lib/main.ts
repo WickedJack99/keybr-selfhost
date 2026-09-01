@@ -4,6 +4,7 @@ import { Command, CommanderError } from "commander";
 import Knex from "knex";
 import { PremiumCommand } from "./command/premium/index.ts";
 import { StatsCommand } from "./command/stats/index.ts";
+import { UserCreateCommand } from "./command/user-create/index.ts";
 import { UserInfoCommand } from "./command/user-info/index.ts";
 
 Env.probeFilesSync();
@@ -12,6 +13,7 @@ container.load(new ConfigModule());
 const knex = container.get(Knex);
 const program = new Command("keybr")
   .addCommand(container.get(UserInfoCommand).command())
+  .addCommand(container.get(UserCreateCommand).command())
   .addCommand(container.get(PremiumCommand).command())
   .addCommand(container.get(StatsCommand).command());
 program

@@ -14,6 +14,7 @@ test("success", async () => {
             registerEmail: () => {
               return Promise.resolve({});
             },
+            loginLocal: () => Promise.resolve(),
           } as SignInActions
         }
       />
@@ -41,6 +42,7 @@ test("failure", async () => {
             registerEmail: () => {
               return Promise.reject(new Error("What a terrible failure"));
             },
+            loginLocal: () => Promise.resolve(),
           } as SignInActions
         }
       />

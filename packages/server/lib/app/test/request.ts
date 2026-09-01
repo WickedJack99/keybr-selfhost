@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { after } from "node:test";
 import { type BuildableRequest, request } from "@fastr/client";
-import { cookies, start } from "@fastr/client-testlib";
+import { CookieJar, cookies, start } from "@fastr/client-testlib";
 import { type Application, type Context, type Middleware } from "@fastr/core";
 import { expectJson, type JsonBodyState } from "@fastr/middleware-body";
 import { Router } from "@fastr/middleware-router";
@@ -24,7 +24,7 @@ export type TestRequest = {
   who(): Promise<string | null>;
 } & BuildableRequest;
 
-export function startApp(app: Application): TestRequest {
+export function startApp(app: Application, jar = new CookieJar()): TestRequest {
   const kBecomePath = "/__tests_only_become__";
   const kWhoPath = "/__tests_only_who__";
 
@@ -54,7 +54,7 @@ export function startApp(app: Application): TestRequest {
 
   const req = request
     .use(start(createTestServer(app.callback())))
-    .use(cookies()) as TestRequest;
+    .use(cookies(jar)) as TestRequest;
 
   req.become = async (id) => {
     const user = id ? await findUser(id) : null;

@@ -18,8 +18,8 @@ export class AuthModule implements Module {
   provideGoogleAdapter(
     @inject("canonicalUrl") canonicalUrl: string,
   ): AdapterFactory {
-    const clientId = Env.getString("AUTH_GOOGLE_CLIENT_ID");
-    const clientSecret = Env.getString("AUTH_GOOGLE_CLIENT_SECRET");
+    const clientId = Env.getString("AUTH_GOOGLE_CLIENT_ID", "");
+    const clientSecret = Env.getString("AUTH_GOOGLE_CLIENT_SECRET", "");
     const scope = ["email", "profile"].join(" ");
     return new (class GoogleAdapterFactory extends AdapterFactory {
       makeAdapter(redirectUri: string): AbstractAdapter {
@@ -37,8 +37,8 @@ export class AuthModule implements Module {
   provideMicrosoftAdapter(
     @inject("canonicalUrl") canonicalUrl: string,
   ): AdapterFactory {
-    const clientId = Env.getString("AUTH_MICROSOFT_CLIENT_ID");
-    const clientSecret = Env.getString("AUTH_MICROSOFT_CLIENT_SECRET");
+    const clientId = Env.getString("AUTH_MICROSOFT_CLIENT_ID", "");
+    const clientSecret = Env.getString("AUTH_MICROSOFT_CLIENT_SECRET", "");
     const scope = ["https://graph.microsoft.com/User.Read"].join(" ");
     return new (class MicrosoftAdapterFactory extends AdapterFactory {
       makeAdapter(redirectUri: string): AbstractAdapter {
@@ -56,8 +56,8 @@ export class AuthModule implements Module {
   provideFacebookAdapter(
     @inject("canonicalUrl") canonicalUrl: string,
   ): AdapterFactory {
-    const clientId = Env.getString("AUTH_FACEBOOK_CLIENT_ID");
-    const clientSecret = Env.getString("AUTH_FACEBOOK_CLIENT_SECRET");
+    const clientId = Env.getString("AUTH_FACEBOOK_CLIENT_ID", "");
+    const clientSecret = Env.getString("AUTH_FACEBOOK_CLIENT_SECRET", "");
     const scope = ["email", "public_profile"].join(",");
     return new (class FacebookAdapterFactory extends AdapterFactory {
       makeAdapter(redirectUri: string): AbstractAdapter {

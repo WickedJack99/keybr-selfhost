@@ -1,69 +1,26 @@
-import { catchError } from "@keybr/debug";
 import { type AnyUser, type UserDetails } from "@keybr/pages-shared";
-import { useState } from "react";
-import { useIntl } from "react-intl";
-import { checkoutProduct } from "./checkout.ts";
-import { AccountService, type PatchAccountRequest } from "./service.ts";
+import { AccountService } from "./service.ts";
 
 export type AccountActions = {
-  readonly patchAccount: (request: PatchAccountRequest) => void;
-  readonly deleteAccount: () => void;
   readonly logout: () => void;
-  readonly checkout: () => void;
 };
 
 export type SignInActions = {
   readonly registerEmail: (email: string) => Promise<unknown>;
+  readonly loginLocal: (username: string, password: string) => Promise<void>;
 };
 
 export function useAccountActions(props: {
   user: UserDetails;
   publicUser: AnyUser;
 }) {
-  const { formatMessage } = useIntl();
-  const [{ user, publicUser }, setState] = useState(props);
-
-  const patchAccount = (request: PatchAccountRequest) => {
-    AccountService.patchAccount(request)
-      .then(({ user, publicUser }) => {
-        setState({ user, publicUser });
-      })
-      .catch(catchError);
-  };
-
-  const deleteAccount = () => {
-    const message = formatMessage({
-      id: "account.deleteAccount.message",
-      defaultMessage:
-        "Are you sure you want to delete your account? " +
-        "This operation is permanent and cannot be undone! " +
-        "However, you can create a new account at any time.",
-    });
-    if (window.confirm(message)) {
-      AccountService.deleteAccount()
-        .then(() => {
-          reload("/");
-        })
-        .catch(catchError);
-    }
-  };
-
-  const logout = () => {
-    reload("/auth/logout");
-  };
-
-  const checkout = () => {
-    checkoutProduct(user).catch(catchError);
-  };
+  const { user, publicUser } = props;
 
   return {
     user,
     publicUser,
     actions: {
-      patchAccount,
-      deleteAccount,
-      logout,
-      checkout,
+      logout: () => reload("/auth/logout"),
     } as AccountActions,
   };
 }
@@ -72,9 +29,13 @@ export function useSignInActions() {
   const registerEmail = (email: string) => {
     return AccountService.registerEmail(email);
   };
+  const loginLocal = (username: string, password: string) => {
+    return AccountService.loginLocal(username, password);
+  };
   return {
     actions: {
       registerEmail,
+      loginLocal,
     } as SignInActions,
   };
 }

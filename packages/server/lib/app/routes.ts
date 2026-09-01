@@ -4,6 +4,7 @@ import { Router } from "@fastr/middleware-router";
 import { Controller as AuthController } from "./auth/index.ts";
 import { Controller as CheckoutController } from "./checkout/index.ts";
 import { Controller as GameController } from "./game/index.ts";
+import { HealthController } from "./health.ts";
 import { Controller as HighScoresController } from "./highscores/index.ts";
 import { Controller as PageController } from "./page/index.ts";
 import { Controller as ProfileController } from "./profile/index.ts";
@@ -18,6 +19,7 @@ export function mainRoutes(): Middleware<any> {
         AuthController,
         CheckoutController,
         HighScoresController,
+        HealthController,
         PageController,
         ProfileController,
         SettingsController,
