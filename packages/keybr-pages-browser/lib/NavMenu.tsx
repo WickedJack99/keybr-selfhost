@@ -46,9 +46,9 @@ export function NavMenu({ currentPath }: { readonly currentPath: string }) {
       </MenuItem>
 
       <MenuItem>
-        <NavLink className={styles.link} to="/auth/logout">
+        <a className={styles.link} href="/auth/logout">
           <span className={styles.label}>Logout</span>
-        </NavLink>
+        </a>
       </MenuItem>
     </div>
   );

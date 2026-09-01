@@ -3,7 +3,7 @@ import { FakeIntlProvider, PreferredLocaleContext } from "@keybr/intl";
 import { PageDataContext } from "@keybr/pages-shared";
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { isNotNull } from "rich-assert";
+import { equal, isNotNull } from "rich-assert";
 import { NavMenu } from "./NavMenu.tsx";
 
 test("render", () => {
@@ -34,6 +34,10 @@ test("render", () => {
 
   isNotNull(r.queryByText("userName"));
   isNotNull(r.queryByText("Logout"));
+  equal(
+    r.getByRole("link", { name: "Logout" }).getAttribute("href"),
+    "/auth/logout",
+  );
 
   r.unmount();
 });
