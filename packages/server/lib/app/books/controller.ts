@@ -24,7 +24,7 @@ const TTitle = parseZod(z.string().trim().min(1).max(200), () => {
 });
 const PPosition = parseZod(
   z.object({
-    characterIndex: z.number().int().min(0).max(10_000_000),
+    paragraphIndex: z.number().int().min(0).max(1_000_000),
   }),
   () => {
     throw new BadRequestError("Invalid book position");
@@ -68,7 +68,7 @@ export class Controller {
       author: parsed.author,
       language: parsed.language,
       content: JSON.stringify(parsed.content),
-      characterIndex: 0,
+      paragraphIndex: 0,
     });
     ctx.response.status = 201;
     ctx.response.body = toSummary(book);
@@ -78,12 +78,14 @@ export class Controller {
   async update(
     ctx: Context<RouterState & AuthState>,
     @pathParam("id", TBookId) id: string,
-    @body.json(PPosition) { characterIndex }: { characterIndex: number },
+    @body.json(PPosition) { paragraphIndex }: { paragraphIndex: number },
   ) {
     const book = await this.findBook(ctx, Number(id));
-    const max = textLength(book);
     await book.$query().patch({
-      characterIndex: Math.min(characterIndex, max),
+      paragraphIndex: Math.min(
+        paragraphIndex,
+        Math.max(0, paragraphCount(book) - 1),
+      ),
     });
     ctx.response.status = 204;
   }
@@ -117,8 +119,8 @@ function toSummary(book: UserBook) {
     title: book.title,
     author: book.author,
     language: book.language,
-    characterIndex: book.characterIndex ?? 0,
-    characterCount: textLength(book),
+    paragraphIndex: book.paragraphIndex ?? 0,
+    paragraphCount: paragraphCount(book),
   };
 }
 
@@ -129,10 +131,10 @@ function toDetails(book: UserBook) {
   };
 }
 
-function textLength(book: UserBook): number {
+function paragraphCount(book: UserBook): number {
   const content = JSON.parse(book.content!) as readonly [
     string,
     readonly string[],
   ][];
-  return content.flatMap(([, paragraphs]) => paragraphs).join("\n\n").length;
+  return content.flatMap(([, paragraphs]) => paragraphs).length;
 }

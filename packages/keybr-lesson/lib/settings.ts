@@ -37,10 +37,6 @@ export const lessonProps = {
       min: 0,
       max: 1000,
     }),
-    characterIndex: numberProp("lesson.books.characterIndex", 0, {
-      min: 0,
-      max: 10_000_000,
-    }),
     lettersOnly: booleanProp("lesson.books.lettersOnly", false),
     lowercase: booleanProp("lesson.books.lowercase", false),
   },

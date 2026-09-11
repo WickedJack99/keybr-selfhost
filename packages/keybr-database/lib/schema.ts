@@ -33,4 +33,9 @@ export async function createSchema(knex: Knex): Promise<void> {
   await createTable(Order);
   await createTable(UserLoginRequest);
   await createTable(UserBook);
+  if (!(await knex.schema.hasColumn(UserBook.tableName, "paragraph_index"))) {
+    await knex.schema.alterTable(UserBook.tableName, (table) => {
+      table.integer("paragraph_index").unsigned().notNullable().defaultTo(0);
+    });
+  }
 }

@@ -559,7 +559,7 @@ export class UserBook extends TimestampMixin(Model) {
       author: { type: "string", minLength: 1, maxLength: 200 },
       language: { type: "string", minLength: 2, maxLength: 16 },
       content: { type: "string", minLength: 1, maxLength: 20_000_000 },
-      characterIndex: { type: "integer", minimum: 0 },
+      paragraphIndex: { type: "integer", minimum: 0 },
     },
   } satisfies JSONSchema;
 
@@ -578,7 +578,7 @@ export class UserBook extends TimestampMixin(Model) {
     table.string("author", author.maxLength).notNullable();
     table.string("language", language.maxLength).notNullable();
     table.text("content", "longtext").notNullable();
-    table.integer("character_index").unsigned().notNullable().defaultTo(0);
+    table.integer("paragraph_index").unsigned().notNullable().defaultTo(0);
     table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     table.index(["user_id"]);
   }
@@ -589,7 +589,7 @@ export class UserBook extends TimestampMixin(Model) {
   author?: string;
   language?: string;
   content?: string;
-  characterIndex?: number;
+  paragraphIndex?: number;
   createdAt?: Date;
 
   static async listForUser(userId: number): Promise<UserBook[]> {

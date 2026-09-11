@@ -25,7 +25,7 @@ function epub() {
   });
 }
 
-test("upload and persist a user's book position", async () => {
+test("upload and persist a user's paragraph position", async () => {
   const request = startApp(context.get(Application, kMain));
   await request.become((await findUser("user1@keybr.com")).id!);
 
@@ -34,15 +34,15 @@ test("upload and persist a user's book position", async () => {
   const summary = await upload.body.json<{
     id: string;
     title: string;
-    characterCount: number;
+    paragraphCount: number;
   }>();
-  like(summary, { title: "My Book", characterCount: 14 });
+  like(summary, { title: "My Book", paragraphCount: 1 });
 
   equal(
     (
       await request
         .PATCH("/_/books/" + summary.id)
-        .send({ characterIndex: 999 })
+        .send({ paragraphIndex: 999 })
     ).status,
     204,
   );
@@ -54,8 +54,8 @@ test("upload and persist a user's book position", async () => {
     title: "My Book",
     author: "Author",
     language: "en",
-    characterIndex: 14,
-    characterCount: 14,
+    paragraphIndex: 0,
+    paragraphCount: 1,
     content: [["1", ["One two three."]]],
   });
 });

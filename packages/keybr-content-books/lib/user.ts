@@ -7,13 +7,13 @@ export type UserBookSummary = {
   readonly title: string;
   readonly author: string;
   readonly language: string;
-  readonly characterIndex: number;
-  readonly characterCount: number;
+  readonly paragraphIndex: number;
+  readonly paragraphCount: number;
 };
 
 export type UserBookContent = BookContent & {
-  readonly characterIndex: number;
-  readonly characterCount: number;
+  readonly paragraphIndex: number;
+  readonly paragraphCount: number;
 };
 
 export async function loadUserBooks(): Promise<readonly UserBookSummary[]> {
@@ -35,8 +35,8 @@ export async function loadUserBook(id: string): Promise<UserBookContent> {
   return {
     book,
     content: value.content,
-    characterIndex: value.characterIndex,
-    characterCount: value.characterCount,
+    paragraphIndex: value.paragraphIndex,
+    paragraphCount: value.paragraphCount,
   };
 }
 
@@ -50,13 +50,13 @@ export async function uploadUserBook(
   return (await response.json()) as UserBookSummary;
 }
 
-export async function updateUserBookPosition(
+export async function updateUserBookParagraph(
   id: string,
-  characterIndex: number,
+  paragraphIndex: number,
 ): Promise<void> {
   const response = await request
     .PATCH("/_/books/" + encodeURIComponent(id))
-    .send({ characterIndex });
+    .send({ paragraphIndex });
   await response.blob();
 }
 

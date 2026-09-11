@@ -14,8 +14,6 @@ export function TextField({
   disabled,
   error,
   maxLength,
-  min,
-  max,
   name,
   placeholder,
   readOnly,
@@ -84,8 +82,6 @@ export function TextField({
         )}
         disabled={disabled}
         maxLength={maxLength}
-        min={min}
-        max={max}
         name={name}
         placeholder={placeholder}
         readOnly={readOnly}

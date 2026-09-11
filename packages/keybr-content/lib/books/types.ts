@@ -15,5 +15,5 @@ export type BookInfo = {
 export type BookContent = {
   readonly book: BookInfo;
   readonly content: Content;
-  readonly characterIndex?: number;
+  readonly paragraphIndex?: number;
 };

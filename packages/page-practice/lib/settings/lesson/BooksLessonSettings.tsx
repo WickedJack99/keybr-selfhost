@@ -2,13 +2,12 @@ import {
   Book,
   BookPreview,
   BookSelector,
-  type Content,
   ParagraphPreview,
   ParagraphSelector,
 } from "@keybr/content";
 import {
   loadUserBooks,
-  updateUserBookPosition,
+  updateUserBookParagraph,
   uploadUserBook,
   userBookAsBook,
   type UserBookSummary,
@@ -78,7 +77,6 @@ export function BooksLessonSettings({
   const customBookId = settings.get(lessonProps.books.customBookId);
   const selectedBook =
     books.find(({ id }) => id === lessonBook.id) ?? lessonBook;
-  const selectedSummary = userBooks.find(({ id }) => id === customBookId);
   return (
     <>
       <Explainer>
@@ -108,47 +106,37 @@ export function BooksLessonSettings({
                   customBookId == null ? "" : customBookId,
                 )
                 .set(
-                  lessonProps.books.characterIndex,
-                  customBook?.characterIndex ?? 0,
+                  lessonProps.books.paragraphIndex,
+                  customBook?.paragraphIndex ?? 0,
                 )
                 .set(
                   lessonProps.books.book,
                   customBookId == null
                     ? book
                     : settings.get(lessonProps.books.book),
-                )
-                .set(lessonProps.books.paragraphIndex, 0),
+                ),
             );
           }}
         />
         <BookPreview book={selectedBook} content={content} />
-        {customBookId === "" ? (
-          <>
-            <ParagraphSelector
-              paragraphs={paragraphs}
-              paragraphIndex={paragraphIndex}
-              onChange={(paragraphIndex) => {
-                updateSettings(
-                  settings.set(
-                    lessonProps.books.paragraphIndex,
-                    paragraphIndex,
-                  ),
-                );
-              }}
-            />
-            <ParagraphPreview
-              paragraphs={paragraphs}
-              paragraphIndex={paragraphIndex}
-            />
-          </>
-        ) : (
-          <BookPosition
-            bookId={customBookId}
-            characterCount={
-              selectedSummary?.characterCount ?? characterCount(content)
+        <ParagraphSelector
+          paragraphs={paragraphs}
+          paragraphIndex={paragraphIndex}
+          onChange={(paragraphIndex) => {
+            updateSettings(
+              settings.set(lessonProps.books.paragraphIndex, paragraphIndex),
+            );
+            if (customBookId !== "") {
+              updateUserBookParagraph(customBookId, paragraphIndex).catch(
+                () => {},
+              );
             }
-          />
-        )}
+          }}
+        />
+        <ParagraphPreview
+          paragraphs={paragraphs}
+          paragraphIndex={paragraphIndex}
+        />
         <UserBookUpload
           title={title}
           file={file}
@@ -170,8 +158,10 @@ export function BooksLessonSettings({
               updateSettings(
                 settings
                   .set(lessonProps.books.customBookId, summary.id)
-                  .set(lessonProps.books.characterIndex, summary.characterIndex)
-                  .set(lessonProps.books.paragraphIndex, 0),
+                  .set(
+                    lessonProps.books.paragraphIndex,
+                    summary.paragraphIndex,
+                  ),
               );
               setTitle("");
               setFile(null);
@@ -188,56 +178,6 @@ export function BooksLessonSettings({
         <LessonLengthProp />
       </FieldSet>
     </>
-  );
-}
-
-function BookPosition({
-  bookId,
-  characterCount,
-}: {
-  readonly bookId: string;
-  readonly characterCount: number;
-}): ReactNode {
-  const { settings, updateSettings } = useSettings();
-  const characterIndex = settings.get(lessonProps.books.characterIndex);
-  const [value, setValue] = useState(String(characterIndex));
-  useEffect(() => {
-    setValue(String(characterIndex));
-  }, [bookId, characterIndex]);
-  useEffect(() => {
-    const nextCharacterIndex = Math.max(
-      0,
-      Math.min(characterCount, Number.parseInt(value, 10) || 0),
-    );
-    const timeout = setTimeout(() => {
-      updateUserBookPosition(bookId, nextCharacterIndex).catch(() => {});
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [bookId, characterCount, value]);
-  return (
-    <FieldList>
-      <Field>Start at character:</Field>
-      <Field>
-        <TextField
-          type="number"
-          size={16}
-          min={0}
-          max={characterCount}
-          value={value}
-          onChange={(nextValue) => {
-            setValue(nextValue);
-            const characterIndex = Math.max(
-              0,
-              Math.min(characterCount, Number.parseInt(nextValue, 10) || 0),
-            );
-            updateSettings(
-              settings.set(lessonProps.books.characterIndex, characterIndex),
-            );
-          }}
-        />
-      </Field>
-      <Field>of {characterCount} characters</Field>
-    </FieldList>
   );
 }
 
@@ -287,10 +227,6 @@ function UserBookUpload({
       {error != null ? <p>{error}</p> : null}
     </FieldSet>
   );
-}
-
-function characterCount(content: Content): number {
-  return content.flatMap(([, paragraphs]) => paragraphs).join("\n\n").length;
 }
 
 function BookTextProcessing(): ReactNode {

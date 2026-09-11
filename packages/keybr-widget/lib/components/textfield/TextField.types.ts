@@ -8,19 +8,11 @@ import {
   type Selectable,
 } from "../types.ts";
 
-export type TextFieldType =
-  | "text"
-  | "textarea"
-  | "email"
-  | "url"
-  | "password"
-  | "number";
+export type TextFieldType = "text" | "textarea" | "email" | "url" | "password";
 
 export type TextFieldProps = {
   readonly error?: string | null;
   readonly maxLength?: number;
-  readonly min?: number;
-  readonly max?: number;
   readonly name?: string;
   readonly placeholder?: string;
   readonly readOnly?: boolean;

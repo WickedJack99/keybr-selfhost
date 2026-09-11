@@ -196,8 +196,8 @@ test("store books separately for each user", async () => {
   equal((await UserBook.findForUser(book.id!, 1))?.title, "A Book");
   equal(await UserBook.findForUser(book.id!, 2), null);
 
-  await book.$query().patch({ characterIndex: 4 });
-  equal((await UserBook.findForUser(book.id!, 1))?.characterIndex, 4);
+  await book.$query().patch({ paragraphIndex: 4 });
+  equal((await UserBook.findForUser(book.id!, 1))?.paragraphIndex, 4);
 });
 
 test("create user from resource owner with null values", async (ctx) => {
