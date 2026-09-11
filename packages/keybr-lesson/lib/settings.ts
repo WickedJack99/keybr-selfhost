@@ -30,9 +30,16 @@ export const lessonProps = {
   } as const,
   books: {
     book: itemProp("lesson.books.book", Book.ALL, Book.EN_ALICE_WONDERLAND),
+    customBookId: stringProp("lesson.books.customBookId", "", {
+      maxLength: 64,
+    }),
     paragraphIndex: numberProp("lesson.books.paragraphIndex", 0, {
       min: 0,
       max: 1000,
+    }),
+    characterIndex: numberProp("lesson.books.characterIndex", 0, {
+      min: 0,
+      max: 10_000_000,
     }),
     lettersOnly: booleanProp("lesson.books.lettersOnly", false),
     lowercase: booleanProp("lesson.books.lowercase", false),

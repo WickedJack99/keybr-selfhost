@@ -4,9 +4,11 @@ import { Book } from "./book.ts";
 
 export function BookSelector({
   book,
+  books = [...Book.ALL],
   onChange,
 }: {
   readonly book: Book;
+  readonly books?: readonly Book[];
   readonly onChange: (book: Book) => void;
 }): ReactNode {
   return (
@@ -15,13 +17,16 @@ export function BookSelector({
       <Field>
         <OptionList
           size={24}
-          options={Book.ALL.map(({ id, title }) => ({
+          options={books.map(({ id, title }) => ({
             value: id,
             name: title,
           }))}
           value={book.id}
           onSelect={(value) => {
-            onChange(Book.ALL.get(value));
+            const book = books.find((book) => book.id === value);
+            if (book != null) {
+              onChange(book);
+            }
           }}
         />
       </Field>

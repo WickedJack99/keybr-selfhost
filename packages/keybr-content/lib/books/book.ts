@@ -59,12 +59,25 @@ export class Book implements EnumItem {
     Book.FR_ALICE_WONDERLAND,
   );
 
+  static createCustom(
+    id: string,
+    language: Language,
+    title: string,
+    author: string,
+  ): Book {
+    return new Book(`custom:${id}`, language, title, author, null);
+  }
+
+  static customId(book: { readonly id: string }): string | null {
+    return book.id.startsWith("custom:") ? book.id.substring(7) : null;
+  }
+
   private constructor(
     readonly id: string,
     readonly language: Language,
     readonly title: string,
     readonly author: string,
-    readonly coverImage: string,
+    readonly coverImage: string | null,
   ) {
     Object.freeze(this);
   }

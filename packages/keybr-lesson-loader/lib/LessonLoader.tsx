@@ -1,4 +1,4 @@
-import { loadContent } from "@keybr/content-books";
+import { loadContent, loadUserBook } from "@keybr/content-books";
 import { loadWordList } from "@keybr/content-words";
 import { catchError } from "@keybr/debug";
 import { KeyboardOptions, useKeyboard } from "@keybr/keyboard";
@@ -84,12 +84,18 @@ function useLoader(model: PhoneticModel): Lesson | null {
           break;
         }
         case LessonType.BOOKS: {
-          const book = settings.get(lessonProps.books.book);
-          const content = await loadContent(book);
+          const customBookId = settings.get(lessonProps.books.customBookId);
+          const bookContent =
+            customBookId === ""
+              ? {
+                  book: settings.get(lessonProps.books.book),
+                  content: await loadContent(
+                    settings.get(lessonProps.books.book),
+                  ),
+                }
+              : await loadUserBook(customBookId);
           if (!didCancel) {
-            setResult(
-              new BooksLesson(settings, keyboard, model, { book, content }),
-            );
+            setResult(new BooksLesson(settings, keyboard, model, bookContent));
           }
           break;
         }

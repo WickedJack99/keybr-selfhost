@@ -10,7 +10,7 @@ import {
   like,
   throws,
 } from "rich-assert";
-import { User, UserExternalId, UserLoginRequest } from "./model.ts";
+import { User, UserBook, UserExternalId, UserLoginRequest } from "./model.ts";
 import { useDatabase } from "./testing.ts";
 import { Random } from "./util.ts";
 
@@ -180,6 +180,24 @@ test("provision local user idempotently", async () => {
     (await User.loginWithPassword("localuser", "second-password"))?.id,
     first.id,
   );
+});
+
+test("store books separately for each user", async () => {
+  const book = await UserBook.query().insertAndFetch({
+    userId: 1,
+    title: "A Book",
+    author: "An Author",
+    language: "en",
+    content: JSON.stringify([["1", ["one", "two"]]]),
+  });
+
+  equal((await UserBook.listForUser(1)).length, 1);
+  equal((await UserBook.listForUser(2)).length, 0);
+  equal((await UserBook.findForUser(book.id!, 1))?.title, "A Book");
+  equal(await UserBook.findForUser(book.id!, 2), null);
+
+  await book.$query().patch({ characterIndex: 4 });
+  equal((await UserBook.findForUser(book.id!, 1))?.characterIndex, 4);
 });
 
 test("create user from resource owner with null values", async (ctx) => {

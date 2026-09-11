@@ -51,6 +51,12 @@ The container healthcheck requests `http://127.0.0.1:3000/healthz`. A healthy re
 
 The upstream multiplayer worker remains in the source tree for maintainability, but private mode blocks its routes and it is not required for the personal application. Only expose port `3000`.
 
+## Private EPUB books
+
+After signing in, open the Practice page and choose the Books lesson. The upload panel accepts an EPUB and a title. Keybr extracts readable chapter and paragraph text on the server and stores that extracted text in the local user's database record; the original EPUB archive is not kept. Uploaded books appear next to the built-in books and are private to that account.
+
+For an uploaded book, use the “Start at character” field to jump to a character offset in the extracted text. The offset is saved for that title in SQLite, so changing to random words or another lesson and later returning to the book restores the selected title and position. Keep the `/data` volume attached when redeploying or those books and positions will be lost.
+
 ## Private access and persistence
 
 Unauthenticated browser requests redirect to `/login`; unauthenticated API requests return `401`. High scores, multiplayer, public profiles, checkout, public registration, magic-link login, OAuth, and sitemap routes are unavailable in private mode. The login session is stored in `/data/sessions`, while SQLite is `/data/database.sqlite`; user settings, typing results, and other mutable files also use `/data`.

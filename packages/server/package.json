@@ -24,9 +24,10 @@
     "@keybr/themes": "*",
     "@paddle/paddle-node-sdk": "^3.6.0",
     "@types/ws": "^8.18.1",
-    "ws": "^8.20.0"
+    "fflate": "^0.8.3",
+    "ws": "^8.20.0",
+    "xml-js": "^1.6.11"
   },
-  "devDependencies": {},
   "scripts": {
     "clean": "rm -fr .types",
     "compile": "tsc",

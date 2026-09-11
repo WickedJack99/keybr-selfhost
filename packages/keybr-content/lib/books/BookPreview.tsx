@@ -33,12 +33,14 @@ export const BookPreview = memo(function BookPreview({
   }, [book, content]);
   return (
     <div className={styles.root}>
-      <img
-        className={styles.coverImage}
-        src={book.coverImage}
-        alt="Book cover image"
-        title={`${book.title} by ${book.author}`}
-      />
+      {book.coverImage != null ? (
+        <img
+          className={styles.coverImage}
+          src={book.coverImage}
+          alt="Book cover image"
+          title={`${book.title} by ${book.author}`}
+        />
+      ) : null}
       <div className={styles.details}>
         <p>
           <strong>{book.title}</strong> by <strong>{book.author}</strong>

@@ -1,5 +1,11 @@
 import { type Knex } from "knex";
-import { Order, User, UserExternalId, UserLoginRequest } from "./model.ts";
+import {
+  Order,
+  User,
+  UserBook,
+  UserExternalId,
+  UserLoginRequest,
+} from "./model.ts";
 
 export async function createSchema(knex: Knex): Promise<void> {
   const createTable = async ({
@@ -26,4 +32,5 @@ export async function createSchema(knex: Knex): Promise<void> {
   await createTable(UserExternalId);
   await createTable(Order);
   await createTable(UserLoginRequest);
+  await createTable(UserBook);
 }

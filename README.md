@@ -38,12 +38,15 @@ The typing-learning functionality remains intentionally close to upstream Keybr.
 * A self-contained Docker image that does not require Git metadata during the Docker build.
 * A Docker healthcheck at `/healthz` and configuration examples for self-hosting.
 * Coolify deployment documentation, including the required port, persistent volume, environment variables, and first-user setup.
+* EPUB uploads in the Practice → Books lesson: choose a local title, extract its readable text into the account database, select it alongside the built-in books, jump to a character offset, and keep that offset per uploaded title.
 
 ### What differs from upstream
 
 For a basic private installation, SMTP and OAuth are not required. The local account replaces upstream e-mail, magic-link, and OAuth login flows. The private mode also disables public-facing features that do not fit a single-user instance, including public registration, public profiles, high scores, multiplayer, checkout, and the sitemap. These routes remain in the source where practical, but are blocked by private mode rather than being part of the self-hosted user flow.
 
 Anonymous browser progress is not used as the primary account: unauthenticated requests are sent to `/login`, and the authenticated local user's progress is stored in the persistent `/data` volume. Keeping that volume attached across redeployments preserves the account, session files, settings, and typing history.
+
+Uploaded books are private to the authenticated local user. The EPUB file itself is not retained after import; extracted chapters and the per-book character position are stored in SQLite under `/data`. In Practice → Books, enter a title, select an EPUB, upload it, and use “Start at character” to resume or jump within that book. Switching to another lesson type and back restores the selected book and its saved position.
 
 For the complete Docker and Coolify instructions, see [docs/self_hosting.md](./docs/self_hosting.md). Start with [.env.example.selfhost](./.env.example.selfhost); it contains the small set of values normally needed for this build.
 

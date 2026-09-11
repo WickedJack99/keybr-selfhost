@@ -1,6 +1,7 @@
 import {
-  type Book,
+  Book,
   type BookContent,
+  type BookInfo,
   type Content,
   flattenContent,
   splitParagraph,
@@ -18,7 +19,7 @@ import { generateFragment } from "./text/fragment.ts";
 import { wordSequence } from "./text/words.ts";
 
 export class BooksLesson extends Lesson {
-  readonly book: Book;
+  readonly book: BookInfo;
   readonly content: Content;
   readonly paragraphs: readonly string[];
   readonly paragraphIndex: number;
@@ -29,20 +30,26 @@ export class BooksLesson extends Lesson {
     settings: Settings,
     keyboard: Keyboard,
     model: PhoneticModel,
-    { book, content }: BookContent,
+    { book, content, characterIndex }: BookContent,
   ) {
     super(settings, keyboard, model);
-    const paragraphIndex = this.settings.get(lessonProps.books.paragraphIndex);
     this.book = book;
     this.content = content;
     this.paragraphs = this.#flattenContent(content);
+    const customBook = Book.customId(book) != null;
+    const paragraphIndex = this.settings.get(lessonProps.books.paragraphIndex);
     this.paragraphIndex = clamp(paragraphIndex, 0, this.paragraphs.length);
-    this.wordList = [
-      ...this.paragraphs.slice(this.paragraphIndex),
-      ...this.paragraphs.slice(0, this.paragraphIndex),
-    ]
-      .map(splitParagraph)
-      .flat();
+    this.wordList = customBook
+      ? wordsFromCharacterIndex(
+          this.paragraphs,
+          characterIndex ?? this.settings.get(lessonProps.books.characterIndex),
+        )
+      : [
+          ...this.paragraphs.slice(this.paragraphIndex),
+          ...this.paragraphs.slice(0, this.paragraphIndex),
+        ]
+          .map(splitParagraph)
+          .flat();
   }
 
   override get letters() {
@@ -76,4 +83,15 @@ export class BooksLesson extends Lesson {
       return text;
     });
   }
+}
+
+function wordsFromCharacterIndex(
+  paragraphs: readonly string[],
+  characterIndex: number,
+): readonly string[] {
+  const text = paragraphs.join("\n\n");
+  const index = clamp(characterIndex, 0, text.length);
+  return splitParagraph(
+    text.substring(index) + "\n\n" + text.substring(0, index),
+  );
 }

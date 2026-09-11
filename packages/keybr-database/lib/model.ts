@@ -546,6 +546,64 @@ export class UserLoginRequest extends TimestampMixin(Model) {
   }
 }
 
+export class UserBook extends TimestampMixin(Model) {
+  static override readonly tableName = "user_book";
+  static override readonly columnNameMappers = snakeCaseMappers();
+  static override readonly jsonSchema = {
+    type: "object",
+    required: ["userId", "title", "author", "language", "content"],
+    properties: {
+      id: { type: "integer" },
+      userId: { type: "integer" },
+      title: { type: "string", minLength: 1, maxLength: 200 },
+      author: { type: "string", minLength: 1, maxLength: 200 },
+      language: { type: "string", minLength: 2, maxLength: 16 },
+      content: { type: "string", minLength: 1, maxLength: 20_000_000 },
+      characterIndex: { type: "integer", minimum: 0 },
+    },
+  } satisfies JSONSchema;
+
+  static createTable(knex: Knex, table: Knex.CreateTableBuilder) {
+    const { title, author, language } = UserBook.jsonSchema.properties;
+    table.increments("id").primary();
+    table
+      .integer("user_id")
+      .unsigned()
+      .notNullable()
+      .references("id")
+      .inTable("user")
+      .onDelete("CASCADE")
+      .onUpdate("CASCADE");
+    table.string("title", title.maxLength).notNullable();
+    table.string("author", author.maxLength).notNullable();
+    table.string("language", language.maxLength).notNullable();
+    table.text("content", "longtext").notNullable();
+    table.integer("character_index").unsigned().notNullable().defaultTo(0);
+    table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
+    table.index(["user_id"]);
+  }
+
+  readonly id?: number;
+  userId?: number;
+  title?: string;
+  author?: string;
+  language?: string;
+  content?: string;
+  characterIndex?: number;
+  createdAt?: Date;
+
+  static async listForUser(userId: number): Promise<UserBook[]> {
+    return await UserBook.query().where({ userId }).orderBy("createdAt", "asc");
+  }
+
+  static async findForUser(
+    id: number,
+    userId: number,
+  ): Promise<UserBook | null> {
+    return (await UserBook.query().findOne({ id, userId })) ?? null;
+  }
+}
+
 User.relationMappings = {
   externalIds: {
     relation: Model.HasManyRelation,
@@ -588,3 +646,4 @@ Order.relationMappings = {
 };
 
 UserLoginRequest.relationMappings = {};
+UserBook.relationMappings = {};
